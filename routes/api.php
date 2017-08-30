@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,7 +13,28 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::group(['middleware' => 'auth:api', 'prefix' => 'v1'], function ()
+{
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+    /*
+    |-----------------------------------------------------------------------
+    | User Routes
+    |-----------------------------------------------------------------------
+    |
+    */
+    Route::group(['prefix' => 'user'], function ()
+    {
+        Route::get('/', function (Request $request)
+        {
+           return $request->user();
+        });
+        Route::get('/edit', function (Request $request)
+        {
+            $user = User::where('name', $request->name)->get();
+
+            if ($user->count() <= 0) return 'Falha ao localizar usuário';
+
+            return $user;
+        });
+    });
 });
